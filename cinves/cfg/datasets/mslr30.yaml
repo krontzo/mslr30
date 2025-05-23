@@ -1,0 +1,31 @@
+# MSLR30 dataset (30 signs, 100 samples per sign)
+# Documentation: https://
+# Example usage: yolo train data=mslr30.yaml
+# parent
+# └── datasets
+#     └── mslr30  ← downloads here (213.3 MB)
+
+path: ../datasets/mslr30 # dataset root dir
+train: images/train # train images (relative to 'path') 4 images
+val: images/val # val images (relative to 'path') 4 images
+test: # test images (optional)
+
+# Classes
+names:
+  0: A
+  1: B
+  2: C
+  3: D
+
+download: |
+  from pathlib import Path
+
+  from ultralytics.utils.downloads import download
+
+  dir = Path(yaml["path"])  # dataset root dir
+  # Download csv data
+  urls = [
+      "https://github.com/krontzo/mslr30/releases/download/v0.0.0/MSLR-TrainingValidation.zip",  # 14.6 MB, 2550 files
+      "https://github.com/krontzo/mslr30/releases/download/v0.0.0/MSLR-Testing.zip",  # 2.57 MB, 450 files
+  ]
+  download(urls, dir=dir / "keypoints", threads=3)
