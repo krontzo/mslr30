@@ -16,6 +16,32 @@ names:
   1: B
   2: C
   3: D
+  4: J
+  5: K
+  6: Q
+  7: X
+  8: Lunes
+  9: Martes
+  10: Miercoles
+  11: Jueves
+  12: Viernes
+  13: Sabado
+  14: Domingo
+  15: Como
+  16: Cuando
+  17: Cuanto
+  18: Deletrear
+  19: Donde
+  20: Explicar
+  21: Gracias
+  22: No
+  23: Nombre
+  24: Para que
+  25: Por_favor
+  26: Por que
+  27: Que es
+  28: Quien
+  29: Si
 
 download: |
   from pathlib import Path
