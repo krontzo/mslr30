@@ -7,18 +7,49 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.transforms import Bbox
+import matplotlib.colors as mcolors
 
-"""
-YOLO Pose keypoints
-6 to 11
-Left Shoulder
-Right Shoulder
-Left Elbow
-Right Elbow
-Left Wrist
-Right Wrist
 
-"""
+
+class GabyColors:
+    """
+    YOLO Pose keypoints
+    6 to 11
+    Left Shoulder
+    Right Shoulder
+    Left Elbow
+    Right Elbow
+    Left Wrist
+    Right Wrist
+    """
+
+    kp_list = [10, 9, 8, 7, 6, 5]  # keypoints de ambas manos, hombros y codos # FIXME: manos, codos y hombros (comentario de Gaby)
+    color_names = ['steelblue', 'orchid', 'indigo',
+                   'brown', 'seagreen', 'tomato']
+    dico = dict(left=dict(shoulder=3, elbow=4, wrist=5),
+        right=dict(shoulder=2, elbow=1, wrist=0))
+    def __init__(self):
+        self.colors = []
+        for color in self.color_names:
+            self.colors.append(mcolors.to_hex(color))
+        """
+        ['#4682b4', '#da70d6', '#4b0082',
+         '#a52a2a', '#2e8b57', '#ff6347']
+        """
+
+    def get_color_for_mslr(self):
+        idx = [0, 2, 4, 5, 3, 1]
+        cls = [self.colors[i] for i in idx]
+        return cls
+
+    def __getitem__(self, key):
+        arm, joint = key
+        assert isinstance(arm, str)
+        assert isinstance(joint, str)
+        tmp = self.get_color_for_mslr()
+        idx = self.dico[arm][joint]
+        return tmp[idx]
+
 
 class KeypointsSign:
     order = dict(body=5,face=20,left_hand=21)
@@ -53,11 +84,33 @@ class KeypointsSign:
         i += 1
         self.right_hand = self.data[:, off[i]:].reshape(shape)
 
-
-
     def __str__(self):
         msg = f"Keypoints({self.identifier}, {self.data.shape})"
         return msg
+
+    def direct_arm_keypoints(self):
+        lw_x, lw_y, lw_z = self.left_wrist
+        le_x, le_y, le_z = self.left_elbow
+        ls_x, ls_y, ls_z= self.left_shoulder
+        rw_x, rw_y, rw_z = self.right_wrist
+        re_x, re_y, re_z = self.right_elbow
+        rs_x, rs_y, rs_z = self.right_shoulder
+        dat = self.data
+        lst = np.array([
+            dat[:, [rw_x, rw_y, rw_z]],
+            dat[:, [re_x, re_y, re_z]],
+            dat[:, [rs_x, rs_y, rs_z]],
+            dat[:, [ls_x, ls_y, ls_z]],
+            dat[:, [le_x, le_y, le_z]],
+            dat[:, [lw_x, lw_y, lw_z]],
+        ])
+
+        kpts = dict(
+                left=dict(shoulder=lst[3], elbow=lst[4], wrist=lst[5]),
+                right=dict(shoulder=lst[2], elbow=lst[1], wrist=lst[0])
+        )
+        return lst
+
 
     def arm_keypoints(self):
         lst = np.array([
@@ -68,6 +121,9 @@ class KeypointsSign:
                 left=dict(shoulder=lst[3], elbow=lst[4], wrist=lst[5]),
                 right=dict(shoulder=lst[2], elbow=lst[1], wrist=lst[0])
         )
+        print(lst.shape, self.identifier)
+        lst_direct = self.direct_arm_keypoints()
+        assert np.all(lst == lst_direct)
         return kpts, lst
 
     def metadata(self):
@@ -124,12 +180,13 @@ class KeypointsSign:
 
     def plot_shape(self, show=False, saveto=None):
         dico, kpts = self.arm_keypoints()
-        box = Bbox.null()
+        box = Bbox.null()  # FIXME: delete if not needed
+        colors = GabyColors()
         fig, axs = plt.subplots(1, 1, figsize=(6.4, 6.4))
         for ida, (arm, val) in enumerate(dico.items()):
             for idx, (label, kpt) in enumerate(val.items()):
                 gid = f"{arm} {label}"
-                axs.plot(kpt[:, 0], kpt[:, 1], "-", label=gid, gid=gid)
+                axs.plot(kpt[:, 0], kpt[:, 1], "-", label=gid, gid=gid, color=colors[arm, label])
         axs.axis("equal")
         axs.yaxis.set_inverted(True)
         axs.set_axis_off()
@@ -230,7 +287,7 @@ def main():
         dataset = Dataset(**dico["mslr"])
         signs = dataset.signs
         print(signs)
-        for sign in signs[9:12]:
+        for sign in signs[:]:
             samples = dataset.get_file_list(sign)
             samples_path = pathlib.Path('~/Public/excluded').expanduser()
             for sample in samples:
