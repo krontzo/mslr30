@@ -22,8 +22,8 @@ class GabyColors:
     Left Wrist
     Right Wrist
     """
-
-    kp_list = [10, 9, 8, 7, 6, 5]  # keypoints de ambas manos, hombros y codos # FIXME: manos, codos y hombros (comentario de Gaby)
+    # FIXME:  (comentario de Gaby en su repo)
+    kp_list = [10, 9, 8, 7, 6, 5]  # keypoints de ambas manos, codos y hombros
     color_names = ['steelblue', 'orchid', 'indigo',
                    'brown', 'seagreen', 'tomato']
     dico = dict(left=dict(shoulder=3, elbow=4, wrist=5),
@@ -60,6 +60,10 @@ class KeypointsSign:
     right_shoulder = [1, 6, 11]
     right_elbow = [3, 8, 13]
     right_wrist = [138, 159, 180]
+    x_min = np.inf
+    y_min = np.inf
+    x_max = -np.inf
+    y_max = -np.inf
 
     def __init__(self, raw_data, identifier=None):
         row = raw_data[0]
@@ -83,6 +87,22 @@ class KeypointsSign:
         self.left_hand = self.data[:, off[i]:off[i+1]].reshape(shape)
         i += 1
         self.right_hand = self.data[:, off[i]:].reshape(shape)
+
+        parts = (self.body, self.face, self.left_hand, self.right_hand)
+        self.stckd = np.dstack(parts)
+        x, y = self.stckd[:, 0, :], self.stckd[:, 1, :]
+        self.update_limits(x.min(), y.min(), x.max(), y.max())
+
+    @classmethod
+    def update_limits(cls, xmin, ymin, xmax, ymax):
+        cls.x_min = np.min((cls.x_min, xmin))
+        cls.y_min = np.min((cls.y_min, ymin))
+        cls.x_max = np.max((cls.x_max, xmax))
+        cls.y_max = np.max((cls.y_max, ymax))
+
+    @classmethod
+    def limits(cls):
+        return np.array([cls.x_min, cls.y_min, cls.x_max, cls.y_max])
 
     def __str__(self):
         msg = f"Keypoints({self.identifier}, {self.data.shape})"
@@ -121,7 +141,6 @@ class KeypointsSign:
                 left=dict(shoulder=lst[3], elbow=lst[4], wrist=lst[5]),
                 right=dict(shoulder=lst[2], elbow=lst[1], wrist=lst[0])
         )
-        print(lst.shape, self.identifier)
         lst_direct = self.direct_arm_keypoints()
         assert np.all(lst == lst_direct)
         return kpts, lst
@@ -276,7 +295,7 @@ def convert_sample_to_shape(sample_filename, sample_path, show=False):
         assert len(data_sample_a[0]) == 67 * 3
         sign_a = KeypointsSign(data_sample_a, sample_filename.stem)
         #sign_a.plot_shape(show=show, saveto=sample_path)
-        sign_a.plot_shape(show=True, saveto=None)
+        sign_a.plot_shape(show=show, saveto=None)
 
 
 def main():
@@ -293,7 +312,9 @@ def main():
             for sample in samples:
                 convert_sample_to_shape(sample, samples_path)
                 break
- 
+
+    print(f"{KeypointsSign.limits()}")
+
 
 if __name__ == "__main__":
     main()

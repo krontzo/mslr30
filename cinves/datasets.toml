@@ -18,7 +18,7 @@ signs = [
     "No", 
     "Nombre", 
     "Para que", 
-    "Por", 
+    "Por_favor", 
     "Por que", 
     "Que es", 
     "Quien", 
@@ -42,4 +42,7 @@ left wrist [[ 75.  96. 117.]]
 right shoulder [[ 1.  6. 11.]]
 right elbow [[ 3.  8. 13.]]
 right wrist [[138. 159. 180.]]
+limits:
+x min, y min, x max, y max
+[-0.52173913 -0.52105263  0.425       0.60714286]
 """
