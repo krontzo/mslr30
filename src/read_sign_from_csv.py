@@ -6,7 +6,7 @@ import numpy as np
 #import mayavi.mlab as plt
 import matplotlib.pyplot as plt
 
-dataset_dir = "~/Public/excluded/MSLR30/"
+dataset_dir = "~/Public/excluded/yolo/datasets/mslr30/"
 dataset_path = pathlib.Path(dataset_dir).expanduser()
 output_filename = sys.argv[1] if len(sys.argv) > 1 else '/tmp/test.svg'
 
@@ -56,3 +56,23 @@ for group in groups:
     plt.plot(x, y, '.')
 plt.gca().invert_yaxis()
 plt.savefig(output_filename)
+
+
+n_rows, n_cols =  5, 4
+fig, axs = plt.subplots(n_rows, n_cols)
+for iii, frame in enumerate(frames):
+    spx, spy = iii // n_cols, iii % n_cols
+    ax = axs[spx, spy]
+    #ax.set_title(f"{iii + 1}")
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_aspect("equal")
+    ax.set_axis_off()
+    ax.invert_yaxis()
+    groups =[frame[start:end] for start, end in partitioning]
+    body, face, left_hand, right_hand = groups
+    for group in groups:
+        x, y, z = group.reshape(3, -1)
+        ax.plot(x, y, '.')
+
+plt.show()
