@@ -1,0 +1,48 @@
+[mslr]
+name = "Mexican Sign Language Recognition"
+number_of_signs = 30
+base_path = '~/Public/excluded/Mexican Sign Language Recognition/'
+samples_per_sign = 100
+total_samples = 3000
+helper_cmd = "ls -1 | cut -f 1 -d _ | sort -u | cat -n"
+signs = [
+    "A", "B", "C", "D", "J", "K", "Q", "X",
+    "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo",
+    "Como", 
+    "Cuando", 
+    "Cuanto", 
+    "Deletrear", 
+    "Donde", 
+    "Explicar", 
+    "Gracias", 
+    "No", 
+    "Nombre", 
+    "Para que", 
+    "Por_favor", 
+    "Por que", 
+    "Que es", 
+    "Quien", 
+    "Si", 
+]
+filename_pattern = '{sign}_{id}_Datos.csv'
+comments = """
+20 consecutive frames containing hands, body, and facial 3D keypoint coordinates
+67 distributed as follows: 20 for the face, 5 for the body, and 21 for each hand
+The captured data is stored in comma-separated values (CSV) structured in 20 rows
+and 201 columns. Each file represents a single repetition of an individual sign, and each
+row represents the information obtained in a single image.
+Each row contains the keypoints (X, Y, Z) coordinates in the following order: five
+body keypoints, 20 facial keypoints, 21 left-hand keypoints, and 21 right-hand keypoints.
+The coordinates are in meters and normalized with respect to the chest to make the signs
+invariant to camera distance.
+<https://github.com/ICKMejia/Mexican-Sign-Language-Recognition>
+left shoulder [[ 0.  5. 10.]]
+left elbow [[ 2.  7. 12.]]
+left wrist [[ 75.  96. 117.]]
+right shoulder [[ 1.  6. 11.]]
+right elbow [[ 3.  8. 13.]]
+right wrist [[138. 159. 180.]]
+limits:
+x min, y min, x max, y max
+[-0.52173913 -0.52105263  0.425       0.60714286]
+"""
