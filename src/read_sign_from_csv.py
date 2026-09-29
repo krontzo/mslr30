@@ -4,13 +4,21 @@ import sys
 
 import numpy as np
 #import mayavi.mlab as plt
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
+mpl.use('GTK4Agg')
+
+import gi
+gi.require_version('Gtk', '4.0')
+from gi.repository import Gtk
+
 dataset_dir = "~/Public/excluded/yolo/datasets/mslr30/"
+dataset_dir = pathlib.Path(__file__).parent.parent / "datasets/"
 dataset_path = pathlib.Path(dataset_dir).expanduser()
 output_filename = sys.argv[1] if len(sys.argv) > 1 else '/tmp/test.svg'
 
-assert dataset_path.exists() and dataset_path.is_dir()
+assert dataset_path.exists() and dataset_path.is_dir(), f"{dataset_path}"
 
 testing_path = dataset_path / "Testing"
 
@@ -49,17 +57,18 @@ groups =[frame[start:end] for start, end in partitioning]
 
 body, face, left_hand, right_hand = groups
 
+fig = plt.figure(num="Frame 0")
 for group in groups:
     #x, y, z = group.reshape(-1, 3).T
     x, y, z = group.reshape(3, -1)
     print(x.shape)
     plt.plot(x, y, '.')
 plt.gca().invert_yaxis()
-plt.savefig(output_filename)
+#plt.savefig(output_filename)
 
 
 n_rows, n_cols =  5, 4
-fig, axs = plt.subplots(n_rows, n_cols)
+fig, axs = plt.subplots(n_rows, n_cols, num="Frames")
 for iii, frame in enumerate(frames):
     spx, spy = iii // n_cols, iii % n_cols
     ax = axs[spx, spy]
@@ -75,4 +84,11 @@ for iii, frame in enumerate(frames):
         x, y, z = group.reshape(3, -1)
         ax.plot(x, y, '.')
 
+print(plt.get_backend())
+print(mpl.rcParams["backend"])
+print(mpl.matplotlib_fname())
+rc_path = pathlib.Path(mpl.matplotlib_fname())
+
+text = rc_path.read_text()
+print(text)
 plt.show()
